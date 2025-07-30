@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background_color">#344d91</color>
+    <color name="menu_background_color">#2A3F73</color>
+
+    <color name="task_color_1">#FF7F50</color>
+    <color name="task_color_2">#6495ED</color>
+    <color name="task_color_3">#9FE2BF</color>
+    <color name="task_color_4">#DE3163</color>
+    <color name="task_color_5">#FFBF00</color>
+</resources>

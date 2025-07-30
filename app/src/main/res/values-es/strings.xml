@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pomodoros</string>
+    <string name="task_name">Nombre de la tarea</string>
+    <string name="pomodoro_duration">Duración del Pomodoro</string>
+    <string name="short_break_duration">Duración del descanso corto</string>
+    <string name="long_break_duration">Duración del descanso largo</string>
+    <string name="cycles">Ciclos</string>
+    <string name="start">Iniciar</string>
+    <string name="pause">Pausa</string>
+    <string name="restart">Reiniciar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="language">Idioma</string>
+    <string name="permissions">Permisos</string>
+    <string name="distraction_free_mode">Modo sin distracciones</string>
+    <string name="alarm_volume">Volumen de la alarma</string>
+    <string name="background_volume">Volumen del fondo</string>
+    <string name="settings">Ajustes</string>
+    <string name="pomodoro_alarm">Alarma del Pomodoro</string>
+    <string name="short_break_alarm">Alarma del descanso corto</string>
+    <string name="long_break_alarm">Alarma del descanso largo</string>
+    <string name="pomodoro_background">Fondo del Pomodoro</string>
+    <string name="short_break_background">Fondo del descanso corto</string>
+    <string name="long_break_background">Fondo del descanso largo</string>
+    <string name="task_color">Color de la tarea</string>
+    <string name="all_permissions_granted">Todos los permisos concedidos</string>
+    <string name="some_permissions_are_missing">Faltan algunos permisos</string>
+    <string name="add_task">Añadir tarea</string>
+    <string name="manage_permissions_description">Gestionar permisos de la aplicación</string>
+</resources>
