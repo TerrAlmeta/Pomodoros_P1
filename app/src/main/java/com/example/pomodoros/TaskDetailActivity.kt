@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -190,7 +191,7 @@ class TaskDetailActivity : AppCompatActivity() {
     }
 
     private fun getSoundResId(soundName: String): Int {
-        return when (soundName) {
+        val resId = when (soundName) {
             "alarm1" -> R.raw.alarm1
             "alarm3" -> R.raw.alarm3
             "alarm4" -> R.raw.alarm4
@@ -214,6 +215,8 @@ class TaskDetailActivity : AppCompatActivity() {
             "background10" -> R.raw.background10
             else -> 0
         }
+        Log.d("TaskDetailActivity", "getSoundResId for $soundName: $resId")
+        return resId
     }
 
     private fun updateColorSelection(selectedView: View, color: String) {

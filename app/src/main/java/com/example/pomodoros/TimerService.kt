@@ -143,6 +143,9 @@ class TimerService : Service() {
                 mediaPlayer = MediaPlayer.create(this, resId)
                 mediaPlayer?.isLooping = true
                 mediaPlayer?.setVolume(volume, volume)
+                mediaPlayer?.setOnCompletionListener {
+                    Log.d("TimerService", "MediaPlayer completed")
+                }
                 mediaPlayer?.start()
                 Log.d("TimerService", "MediaPlayer started")
             }

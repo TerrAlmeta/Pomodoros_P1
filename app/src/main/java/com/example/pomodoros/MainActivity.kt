@@ -23,16 +23,22 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import android.app.NotificationManager
 import androidx.core.net.toUri
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import java.util.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SeekBar
 
 class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbackListener {
 
     private val mainViewModel: MainViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
     private lateinit var adapter: TaskListAdapter
     private var currentTask: Task? = null
     private lateinit var timerReceiver: BroadcastReceiver
@@ -107,6 +113,68 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             }
         })
 
+        val languageSpinner = findViewById<Spinner>(R.id.language_spinner)
+        val languages = listOf("English", "Español")
+        val languageAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageSpinner.adapter = languageAdapter
+        languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val language = if (position == 0) "en" else "es"
+                val currentLanguage = Locale.getDefault().language
+                if (language != currentLanguage) {
+                    setLocale(language)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        val permissionsStatusTextView = findViewById<TextView>(R.id.permissions_status_text_view)
+        updatePermissionsStatus(permissionsStatusTextView)
+
+        findViewById<Button>(R.id.manage_permissions_button).setOnClickListener {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = "package:$packageName".toUri()
+            intent.data = uri
+            startActivity(intent)
+        }
+
+        val distractionFreeSwitch = findViewById<SwitchMaterial>(R.id.distraction_free_switch)
+        distractionFreeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                requestDoNotDisturb()
+            } else {
+                turnOffDoNotDisturb()
+            }
+        }
+
+        val alarmVolumeSeekBar = findViewById<SeekBar>(R.id.alarm_volume_seek_bar)
+        settingsViewModel.alarmVolume.observe(this) { volume ->
+            alarmVolumeSeekBar.progress = volume
+        }
+        alarmVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                settingsViewModel.setAlarmVolume(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        val backgroundVolumeSeekBar = findViewById<SeekBar>(R.id.background_volume_seek_bar)
+        settingsViewModel.backgroundVolume.observe(this) { volume ->
+            backgroundVolumeSeekBar.progress = volume
+        }
+        backgroundVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                settingsViewModel.setBackgroundVolume(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
 
         findViewById<Button>(R.id.start_button).setOnClickListener {
             currentTask?.let {
@@ -136,11 +204,12 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             override fun onReceive(context: Context?, intent: Intent?) {
                 val millisUntilFinished = intent?.getLongExtra(TimerService.TIMER_VALUE, 0) ?: 0
                 Log.d("MainActivity", "onReceive called with millisUntilFinished: $millisUntilFinished")
-                if (millisUntilFinished > 0) {
-                    val minutes = (millisUntilFinished / 1000) / 60
-                    val seconds = (millisUntilFinished / 1000) % 60
-                    findViewById<TextView>(R.id.timer_text).text = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
-                } else {
+                val minutes = (millisUntilFinished / 1000) / 60
+                val seconds = (millisUntilFinished / 1000) % 60
+                val timerTextView = findViewById<TextView>(R.id.timer_text)
+                timerTextView.text = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+                Log.d("MainActivity", "timer_text updated to: ${timerTextView.text}")
+                if (millisUntilFinished == 0L) {
                     isTimerRunning = false
                     handleTimerFinish()
                 }
@@ -267,13 +336,59 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
         val list = adapter.currentList.toMutableList()
         Collections.swap(list, fromPosition, toPosition)
+        adapter.notifyItemMoved(fromPosition, toPosition)
         updateTaskOrder(list)
+    }
+
+    override fun onSwiped(position: Int) {
+        val task = adapter.currentList[position]
+        mainViewModel.delete(task)
     }
 
     private fun updateTaskOrder(tasks: List<Task>) {
         for (i in tasks.indices) {
             val task = tasks[i].copy(order = i)
             mainViewModel.update(task)
+        }
+    }
+
+    private fun setLocale(languageCode: String) {
+        val locale = Locale.forLanguageTag(languageCode)
+        Locale.setDefault(locale)
+        val config = resources.configuration
+        config.setLocale(locale)
+        baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
+
+        val sharedPref = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
+        sharedPref.edit {
+            putString("language", languageCode)
+        }
+        recreate()
+    }
+
+    private fun updatePermissionsStatus(textView: TextView) {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager.isNotificationPolicyAccessGranted) {
+            textView.text = getString(R.string.all_permissions_granted)
+        } else {
+            textView.text = getString(R.string.some_permissions_are_missing)
+        }
+    }
+
+    private fun requestDoNotDisturb() {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationManager.isNotificationPolicyAccessGranted) {
+            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+            startActivity(intent)
+        } else {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        }
+    }
+
+    private fun turnOffDoNotDisturb() {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
     }
 }
