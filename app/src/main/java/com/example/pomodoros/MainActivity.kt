@@ -64,6 +64,14 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
 
         val recyclerView = findViewById<RecyclerView>(R.id.task_recycler_view)
         adapter = TaskListAdapter()
+        adapter.setOnItemClickListener(object : TaskListAdapter.OnItemClickListener {
+            override fun onItemClick(task: Task) {
+                currentTask = task
+                updateCurrentTaskUI()
+                mainViewModel.allTasks.value?.forEach { it.isSelected = (it.id == task.id) }
+                adapter.notifyDataSetChanged()
+            }
+        })
         recyclerView.adapter = adapter
 
         mainViewModel.allTasks.observe(this) { tasks ->
@@ -90,7 +98,12 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
 
         val swipeHandler = object : SwipeToEditCallback(this, this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // Do nothing here. The actions will be handled by click listeners on the buttons.
+                val position = viewHolder.adapterPosition
+                if (direction == ItemTouchHelper.LEFT) {
+                    onDeleteClicked(position)
+                } else if (direction == ItemTouchHelper.RIGHT) {
+                    onEditClicked(position)
+                }
             }
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
@@ -233,11 +246,14 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             timerTextView.text = String.format(Locale.getDefault(), "%02d:00", duration)
         }
 
-        currentTask?.color?.let {
-            if (it.isNotEmpty()) {
-                val color = Color.parseColor(it)
+        currentTask?.let {
+            if (it.color.isNotEmpty()) {
+                val color = Color.parseColor(it.color)
                 taskTitleTextView.setTextColor(color)
                 timerTextView.setTextColor(color)
+            } else {
+                taskTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.white))
+                timerTextView.setTextColor(ContextCompat.getColor(this, R.color.white))
             }
         }
     }
@@ -266,30 +282,25 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
     }
 
     private fun handleTimerFinish() {
+        stopTimerService()
         currentTask?.let { task ->
             when (currentTimerType) {
                 "pomodoro" -> {
                     if (currentCycle < task.cycles) {
                         currentTimerType = "short_break"
                         findViewById<TextView>(R.id.task_title).text = getString(R.string.short_break)
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            startTimer(task.shortBreakDuration * 60 * 1000L, task.shortBreakAlarmSound, task.shortBreakBackgroundSound)
-                        }, 1000)
+                        startTimer(task.shortBreakDuration * 60 * 1000L, task.shortBreakAlarmSound, task.shortBreakBackgroundSound)
                     } else {
                         currentTimerType = "long_break"
                         findViewById<TextView>(R.id.task_title).text = getString(R.string.long_break)
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            startTimer(task.longBreakDuration * 60 * 1000L, task.longBreakAlarmSound, task.longBreakBackgroundSound)
-                        }, 1000)
+                        startTimer(task.longBreakDuration * 60 * 1000L, task.longBreakAlarmSound, task.longBreakBackgroundSound)
                     }
                 }
                 "short_break" -> {
                     currentCycle++
                     currentTimerType = "pomodoro"
                     findViewById<TextView>(R.id.task_title).text = task.name
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        startTimer(task.pomodoroDuration * 60 * 1000L, task.pomodoroAlarmSound, task.pomodoroBackgroundSound)
-                    }, 1000)
+                    startTimer(task.pomodoroDuration * 60 * 1000L, task.pomodoroAlarmSound, task.pomodoroBackgroundSound)
                 }
                 "long_break" -> {
                     // Task finished
@@ -315,8 +326,9 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
 
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
         val list = adapter.currentList.toMutableList()
-        Collections.swap(list, fromPosition, toPosition)
-        adapter.notifyItemMoved(fromPosition, toPosition)
+        val task = list.removeAt(fromPosition)
+        list.add(toPosition, task)
+        adapter.submitList(list)
         updateTaskOrder(list)
     }
 

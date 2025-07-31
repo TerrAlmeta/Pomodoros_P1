@@ -222,8 +222,8 @@ class TaskDetailActivity : AppCompatActivity() {
     private fun updateColorSelection(selectedView: View, color: String) {
         selectedColor = color
         for (view in colorViews) {
-            view.foreground = null
+            view.background.alpha = 128
         }
-        selectedView.foreground = ContextCompat.getDrawable(this, R.drawable.color_selection_border)
+        selectedView.background.alpha = 255
     }
 }
