@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        val languageSpinner = findViewById<Spinner>(R.id.language_spinner)
+        val languageSpinner = navView.findViewById<Spinner>(R.id.language_spinner)
         val languages = listOf("English", "Español")
         val languageAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)
         languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -112,17 +112,17 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        val permissionsStatusTextView = findViewById<TextView>(R.id.permissions_status_text_view)
+        val permissionsStatusTextView = navView.findViewById<TextView>(R.id.permissions_status_text_view)
         updatePermissionsStatus(permissionsStatusTextView)
 
-        findViewById<Button>(R.id.manage_permissions_button).setOnClickListener {
+        navView.findViewById<Button>(R.id.manage_permissions_button).setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri = "package:$packageName".toUri()
             intent.data = uri
             startActivity(intent)
         }
 
-        val distractionFreeSwitch = findViewById<SwitchMaterial>(R.id.distraction_free_switch)
+        val distractionFreeSwitch = navView.findViewById<SwitchMaterial>(R.id.distraction_free_switch)
         distractionFreeSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 requestDoNotDisturb()
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             }
         }
 
-        val alarmVolumeSeekBar = findViewById<SeekBar>(R.id.alarm_volume_seek_bar)
+        val alarmVolumeSeekBar = navView.findViewById<SeekBar>(R.id.alarm_volume_seek_bar)
         val sharedPreferences = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
         alarmVolumeSeekBar.progress = sharedPreferences.getInt("alarm_volume", 100)
         alarmVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        val backgroundVolumeSeekBar = findViewById<SeekBar>(R.id.background_volume_seek_bar)
+        val backgroundVolumeSeekBar = navView.findViewById<SeekBar>(R.id.background_volume_seek_bar)
         backgroundVolumeSeekBar.progress = sharedPreferences.getInt("background_volume", 100)
         backgroundVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
