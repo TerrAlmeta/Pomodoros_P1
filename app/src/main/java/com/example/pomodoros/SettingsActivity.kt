@@ -113,7 +113,6 @@ class SettingsActivity : AppCompatActivity() {
         val resources = resources
         val config = resources.configuration
         config.setLocale(locale)
-        baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
 
         val sharedPref = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
         with(sharedPref.edit()) {

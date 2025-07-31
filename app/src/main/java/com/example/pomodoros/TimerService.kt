@@ -9,14 +9,18 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.CountDownTimer
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.IBinder
 import android.os.Vibrator
+import android.os.VibrationEffect
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 
 class TimerService : Service() {
 
-    private val NOTIFICATION_CHANNEL_ID = "TimerServiceChannel"
-    private val NOTIFICATION_ID = 1
+    private val notificationChannelId = "TimerServiceChannel"
+    private val notificationId = 1
     private var countDownTimer: CountDownTimer? = null
     private var mediaPlayer: MediaPlayer? = null
 
@@ -38,14 +42,14 @@ class TimerService : Service() {
             0, notificationIntent, PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, notificationChannelId)
             .setContentTitle("Pomodoros")
             .setContentText("Timer is running...")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .build()
 
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(notificationId, notification)
 
         playBackgroundSound(backgroundSound)
 
@@ -79,7 +83,7 @@ class TimerService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
+                notificationChannelId,
                 "Timer Service Channel",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
@@ -88,13 +92,42 @@ class TimerService : Service() {
         }
     }
 
+    private fun getSoundResId(soundName: String): Int {
+        return when (soundName) {
+            "alarm1" -> R.raw.alarm1
+            "alarm3" -> R.raw.alarm3
+            "alarm4" -> R.raw.alarm4
+            "alarm5" -> R.raw.alarm5
+            "alarm6" -> R.raw.alarm6
+            "alarm7" -> R.raw.alarm7
+            "alarm8" -> R.raw.alarm8
+            "alarm9" -> R.raw.alarm9
+            "alarm10" -> R.raw.alarm10
+            "alarm11" -> R.raw.alarm11
+            "alarm12" -> R.raw.alarm12
+            "background1" -> R.raw.background1
+            "background2" -> R.raw.background2
+            "background3" -> R.raw.background3
+            "background4" -> R.raw.background4
+            "background5" -> R.raw.background5
+            "background6" -> R.raw.background6
+            "background7" -> R.raw.background7
+            "background8" -> R.raw.background8
+            "background9" -> R.raw.background9
+            "background10" -> R.raw.background10
+            else -> 0
+        }
+    }
+
     private fun playBackgroundSound(soundName: String?) {
         if (soundName != null && soundName != "None") {
             mediaPlayer?.release()
-            val resId = resources.getIdentifier(soundName, "raw", packageName)
-            mediaPlayer = MediaPlayer.create(this, resId)
-            mediaPlayer?.isLooping = true
-            mediaPlayer?.start()
+            val resId = getSoundResId(soundName)
+            if (resId != 0) {
+                mediaPlayer = MediaPlayer.create(this, resId)
+                mediaPlayer?.isLooping = true
+                mediaPlayer?.start()
+            }
         }
     }
 
@@ -106,12 +139,19 @@ class TimerService : Service() {
     private fun playAlarm(alarmSound: String?) {
         if (alarmSound == "Vibration") {
             val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            vibrator.vibrate(3000)
+            if (VERSION.SDK_INT >= VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(3000, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                //deprecated in API 26
+                vibrator.vibrate(3000)
+            }
         } else if (alarmSound != null) {
-            val resId = resources.getIdentifier(alarmSound, "raw", packageName)
-            val alarmPlayer = MediaPlayer.create(this, resId)
-            alarmPlayer.start()
-            alarmPlayer.setOnCompletionListener { it.release() }
+            val resId = getSoundResId(alarmSound)
+            if (resId != 0) {
+                val alarmPlayer = MediaPlayer.create(this, resId)
+                alarmPlayer.start()
+                alarmPlayer.setOnCompletionListener { it.release() }
+            }
         }
     }
 }

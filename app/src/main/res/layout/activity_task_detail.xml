@@ -34,6 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/pomodoro_duration"
+                android:labelFor="@id/pomodoro_duration_edit_text"
                 android:textColor="@color/white" />
 
             <EditText
@@ -44,8 +45,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white"
-                android:contentDescription="@string/pomodoro_duration" />
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -59,6 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/short_break_duration"
+                android:labelFor="@id/short_break_duration_edit_text"
                 android:textColor="@color/white" />
 
             <EditText
@@ -69,8 +70,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white"
-                android:contentDescription="@string/short_break_duration" />
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -84,6 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/long_break_duration"
+                android:labelFor="@id/long_break_duration_edit_text"
                 android:textColor="@color/white" />
 
             <EditText
@@ -94,8 +95,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white"
-                android:contentDescription="@string/long_break_duration" />
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -109,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/cycles"
+                android:labelFor="@id/cycles_edit_text"
                 android:textColor="@color/white" />
 
             <EditText
@@ -119,8 +120,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white"
-                android:contentDescription="@string/cycles" />
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <TextView

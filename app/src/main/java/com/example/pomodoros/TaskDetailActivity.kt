@@ -162,9 +162,38 @@ class TaskDetailActivity : AppCompatActivity() {
 
     private fun playSound(soundName: String) {
         mediaPlayer?.release()
-        val resId = resources.getIdentifier(soundName, "raw", packageName)
-        mediaPlayer = MediaPlayer.create(this, resId)
-        mediaPlayer?.start()
+        val resId = getSoundResId(soundName)
+        if (resId != 0) {
+            mediaPlayer = MediaPlayer.create(this, resId)
+            mediaPlayer?.start()
+        }
+    }
+
+    private fun getSoundResId(soundName: String): Int {
+        return when (soundName) {
+            "alarm1" -> R.raw.alarm1
+            "alarm3" -> R.raw.alarm3
+            "alarm4" -> R.raw.alarm4
+            "alarm5" -> R.raw.alarm5
+            "alarm6" -> R.raw.alarm6
+            "alarm7" -> R.raw.alarm7
+            "alarm8" -> R.raw.alarm8
+            "alarm9" -> R.raw.alarm9
+            "alarm10" -> R.raw.alarm10
+            "alarm11" -> R.raw.alarm11
+            "alarm12" -> R.raw.alarm12
+            "background1" -> R.raw.background1
+            "background2" -> R.raw.background2
+            "background3" -> R.raw.background3
+            "background4" -> R.raw.background4
+            "background5" -> R.raw.background5
+            "background6" -> R.raw.background6
+            "background7" -> R.raw.background7
+            "background8" -> R.raw.background8
+            "background9" -> R.raw.background9
+            "background10" -> R.raw.background10
+            else -> 0
+        }
     }
 
     override fun onStop() {
