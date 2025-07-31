@@ -34,7 +34,10 @@ class SettingsActivity : AppCompatActivity() {
         languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val language = if (position == 0) "en" else "es"
-                setLocale(language)
+                val currentLanguage = Locale.getDefault().language
+                if (language != currentLanguage) {
+                    setLocale(language)
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -61,6 +64,9 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val alarmVolumeSeekBar = findViewById<SeekBar>(R.id.alarm_volume_seek_bar)
+        settingsViewModel.alarmVolume.observe(this) { volume ->
+            alarmVolumeSeekBar.progress = volume
+        }
         alarmVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 settingsViewModel.setAlarmVolume(progress)
@@ -71,6 +77,9 @@ class SettingsActivity : AppCompatActivity() {
         })
 
         val backgroundVolumeSeekBar = findViewById<SeekBar>(R.id.background_volume_seek_bar)
+        settingsViewModel.backgroundVolume.observe(this) { volume ->
+            backgroundVolumeSeekBar.progress = volume
+        }
         backgroundVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 settingsViewModel.setBackgroundVolume(progress)

@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 class TaskDetailActivity : AppCompatActivity() {
 
@@ -17,6 +18,7 @@ class TaskDetailActivity : AppCompatActivity() {
     private var taskId: Int = -1
     private var selectedColor: String = ""
     private var mediaPlayer: MediaPlayer? = null
+    private lateinit var colorViews: List<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +32,20 @@ class TaskDetailActivity : AppCompatActivity() {
         val longBreakDurationEditText = findViewById<EditText>(R.id.long_break_duration_edit_text)
         val cyclesEditText = findViewById<EditText>(R.id.cycles_edit_text)
 
-        val alarmSounds = listOf("Vibration", "alarm1", "alarm4", "alarm5", "alarm7", "alarm10", "alarm11", "alarm3", "alarm12", "alarm6", "alarm8", "alarm9")
-        val backgroundSounds = listOf("None", "background1", "background6", "background10", "background2", "background4", "background8", "background9", "background3", "background5", "background7")
+        val alarmSoundNames = resources.getStringArray(R.array.alarm_sound_names)
+        val backgroundSoundNames = resources.getStringArray(R.array.background_sound_names)
+
+        val alarmSounds = mapOf(
+            "Vibration" to "Vibration", "Alarm 1" to "alarm1", "Alarm 2" to "alarm4", "Alarm 3" to "alarm5",
+            "Alarm 4" to "alarm7", "Alarm 5" to "alarm10", "Alarm 6" to "alarm11", "Applause" to "alarm3",
+            "Bell" to "alarm12", "Splash" to "alarm6", "I'm fine" to "alarm8", "Knock Knock" to "alarm9"
+        )
+
+        val backgroundSounds = mapOf(
+            "None" to "None", "Keyboard" to "background1", "Piano" to "background6", "Meditation" to "background10",
+            "Fire" to "background2", "Crystal" to "background4", "Rain" to "background8", "Wind" to "background9",
+            "Bubbles" to "background3", "Coffee Shop" to "background5", "Steps" to "background7"
+        )
 
         val pomodoroAlarmSpinner = findViewById<Spinner>(R.id.pomodoro_alarm_spinner)
         val shortBreakAlarmSpinner = findViewById<Spinner>(R.id.short_break_alarm_spinner)
@@ -40,14 +54,16 @@ class TaskDetailActivity : AppCompatActivity() {
         val shortBreakBackgroundSpinner = findViewById<Spinner>(R.id.short_break_background_spinner)
         val longBreakBackgroundSpinner = findViewById<Spinner>(R.id.long_break_background_spinner)
 
-        val alarmAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, alarmSounds)
-        alarmAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val alarmAdapter = SoundSpinnerAdapter(this, alarmSoundNames.toTypedArray(), alarmSounds, ::getSoundResId) { soundName ->
+            // This is where we would handle the play/pause click if we needed to do something in the activity
+        }
         pomodoroAlarmSpinner.adapter = alarmAdapter
         shortBreakAlarmSpinner.adapter = alarmAdapter
         longBreakAlarmSpinner.adapter = alarmAdapter
 
-        val backgroundAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, backgroundSounds)
-        backgroundAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val backgroundAdapter = SoundSpinnerAdapter(this, backgroundSoundNames.toTypedArray(), backgroundSounds, ::getSoundResId) { soundName ->
+            // This is where we would handle the play/pause click if we needed to do something in the activity
+        }
         pomodoroBackgroundSpinner.adapter = backgroundAdapter
         shortBreakBackgroundSpinner.adapter = backgroundAdapter
         longBreakBackgroundSpinner.adapter = backgroundAdapter
@@ -60,22 +76,60 @@ class TaskDetailActivity : AppCompatActivity() {
                     shortBreakDurationEditText.setText(it.shortBreakDuration.toString())
                     longBreakDurationEditText.setText(it.longBreakDuration.toString())
                     cyclesEditText.setText(it.cycles.toString())
-                    pomodoroAlarmSpinner.setSelection(alarmSounds.indexOf(it.pomodoroAlarmSound))
-                    shortBreakAlarmSpinner.setSelection(alarmSounds.indexOf(it.shortBreakAlarmSound))
-                    longBreakAlarmSpinner.setSelection(alarmSounds.indexOf(it.longBreakAlarmSound))
-                    pomodoroBackgroundSpinner.setSelection(backgroundSounds.indexOf(it.pomodoroBackgroundSound))
-                    shortBreakBackgroundSpinner.setSelection(backgroundSounds.indexOf(it.shortBreakBackgroundSound))
-                    longBreakBackgroundSpinner.setSelection(backgroundSounds.indexOf(it.longBreakBackgroundSound))
+
+                    val pomodoroAlarmName = alarmSounds.entries.find { it.value == task.pomodoroAlarmSound }?.key
+                    pomodoroAlarmSpinner.setSelection(alarmSoundNames.indexOf(pomodoroAlarmName))
+
+                    val shortBreakAlarmName = alarmSounds.entries.find { it.value == task.shortBreakAlarmSound }?.key
+                    shortBreakAlarmSpinner.setSelection(alarmSoundNames.indexOf(shortBreakAlarmName))
+
+                    val longBreakAlarmName = alarmSounds.entries.find { it.value == task.longBreakAlarmSound }?.key
+                    longBreakAlarmSpinner.setSelection(alarmSoundNames.indexOf(longBreakAlarmName))
+
+                    val pomodoroBackgroundName = backgroundSounds.entries.find { it.value == task.pomodoroBackgroundSound }?.key
+                    pomodoroBackgroundSpinner.setSelection(backgroundSoundNames.indexOf(pomodoroBackgroundName))
+
+                    val shortBreakBackgroundName = backgroundSounds.entries.find { it.value == task.shortBreakBackgroundSound }?.key
+                    shortBreakBackgroundSpinner.setSelection(backgroundSoundNames.indexOf(shortBreakBackgroundName))
+
+                    val longBreakBackgroundName = backgroundSounds.entries.find { it.value == task.longBreakBackgroundSound }?.key
+                    longBreakBackgroundSpinner.setSelection(backgroundSoundNames.indexOf(longBreakBackgroundName))
+
                     selectedColor = it.color
                 }
             }
         }
 
-        findViewById<View>(R.id.color_1).setOnClickListener { selectedColor = "#FF7F50" }
-        findViewById<View>(R.id.color_2).setOnClickListener { selectedColor = "#6495ED" }
-        findViewById<View>(R.id.color_3).setOnClickListener { selectedColor = "#9FE2BF" }
-        findViewById<View>(R.id.color_4).setOnClickListener { selectedColor = "#DE3163" }
-        findViewById<View>(R.id.color_5).setOnClickListener { selectedColor = "#FFBF00" }
+        colorViews = listOf(
+            findViewById(R.id.color_1),
+            findViewById(R.id.color_2),
+            findViewById(R.id.color_3),
+            findViewById(R.id.color_4),
+            findViewById(R.id.color_5)
+        )
+
+        colorViews[0].setOnClickListener { updateColorSelection(it, "#FF7F50") }
+        colorViews[1].setOnClickListener { updateColorSelection(it, "#6495ED") }
+        colorViews[2].setOnClickListener { updateColorSelection(it, "#9FE2BF") }
+        colorViews[3].setOnClickListener { updateColorSelection(it, "#DE3163") }
+        colorViews[4].setOnClickListener { updateColorSelection(it, "#FFBF00") }
+
+        val colors = listOf("#FF7F50", "#6495ED", "#9FE2BF", "#DE3163", "#FFBF00")
+        if (taskId != -1) {
+            taskDetailViewModel.getTaskById(taskId).observe(this) { task ->
+                task?.let {
+                    // ... (rest of the task loading logic)
+                    selectedColor = it.color
+                    val colorIndex = colors.indexOf(selectedColor)
+                    if (colorIndex != -1) {
+                        updateColorSelection(colorViews[colorIndex], selectedColor)
+                    }
+                }
+            }
+        } else {
+            // Set a default color
+            updateColorSelection(colorViews[0], colors[0])
+        }
 
         findViewById<Button>(R.id.save_button).setOnClickListener {
             val taskName = taskNameEditText.text.toString()
@@ -89,12 +143,12 @@ class TaskDetailActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val pomodoroAlarm = pomodoroAlarmSpinner.selectedItem.toString()
-            val shortBreakAlarm = shortBreakAlarmSpinner.selectedItem.toString()
-            val longBreakAlarm = longBreakAlarmSpinner.selectedItem.toString()
-            val pomodoroBackground = pomodoroBackgroundSpinner.selectedItem.toString()
-            val shortBreakBackground = shortBreakBackgroundSpinner.selectedItem.toString()
-            val longBreakBackground = longBreakBackgroundSpinner.selectedItem.toString()
+            val pomodoroAlarm = alarmSounds[pomodoroAlarmSpinner.selectedItem.toString()]
+            val shortBreakAlarm = alarmSounds[shortBreakAlarmSpinner.selectedItem.toString()]
+            val longBreakAlarm = alarmSounds[longBreakAlarmSpinner.selectedItem.toString()]
+            val pomodoroBackground = backgroundSounds[pomodoroBackgroundSpinner.selectedItem.toString()]
+            val shortBreakBackground = backgroundSounds[shortBreakBackgroundSpinner.selectedItem.toString()]
+            val longBreakBackground = backgroundSounds[longBreakBackgroundSpinner.selectedItem.toString()]
 
             if (taskId != -1) {
                 val task = Task(
@@ -139,32 +193,16 @@ class TaskDetailActivity : AppCompatActivity() {
             finish()
         }
 
-        val soundSelectionListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val soundName = parent?.getItemAtPosition(position).toString()
-                if (soundName != "None" && soundName != "Vibration") {
-                    playSound(soundName)
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-        }
-
-        pomodoroAlarmSpinner.onItemSelectedListener = soundSelectionListener
-        shortBreakAlarmSpinner.onItemSelectedListener = soundSelectionListener
-        longBreakAlarmSpinner.onItemSelectedListener = soundSelectionListener
-        pomodoroBackgroundSpinner.onItemSelectedListener = soundSelectionListener
-        shortBreakBackgroundSpinner.onItemSelectedListener = soundSelectionListener
-        longBreakBackgroundSpinner.onItemSelectedListener = soundSelectionListener
     }
 
     private fun playSound(soundName: String) {
         mediaPlayer?.release()
         val resId = getSoundResId(soundName)
         if (resId != 0) {
+            val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
+            val volume = sharedPreferences.getInt("alarm_volume", 100) / 100f
             mediaPlayer = MediaPlayer.create(this, resId)
+            mediaPlayer?.setVolume(volume, volume)
             mediaPlayer?.start()
         }
     }
@@ -200,5 +238,13 @@ class TaskDetailActivity : AppCompatActivity() {
         super.onStop()
         mediaPlayer?.release()
         mediaPlayer = null
+    }
+
+    private fun updateColorSelection(selectedView: View, color: String) {
+        selectedColor = color
+        for (view in colorViews) {
+            view.foreground = null
+        }
+        selectedView.foreground = ContextCompat.getDrawable(this, R.drawable.color_selection_border)
     }
 }

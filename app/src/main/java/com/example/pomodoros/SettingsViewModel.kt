@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val sharedPreferences = application.getSharedPreferences("pomodoro_prefs", Application.MODE_PRIVATE)
+
     private val _language = MutableLiveData<String>()
     val language: LiveData<String> = _language
 
@@ -19,16 +21,23 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _distractionFreeMode = MutableLiveData<Boolean>()
     val distractionFreeMode: LiveData<Boolean> = _distractionFreeMode
 
+    init {
+        _alarmVolume.value = sharedPreferences.getInt("alarm_volume", 100)
+        _backgroundVolume.value = sharedPreferences.getInt("background_volume", 100)
+    }
+
     fun setLanguage(lang: String) {
         _language.value = lang
     }
 
     fun setAlarmVolume(volume: Int) {
         _alarmVolume.value = volume
+        sharedPreferences.edit().putInt("alarm_volume", volume).apply()
     }
 
     fun setBackgroundVolume(volume: Int) {
         _backgroundVolume.value = volume
+        sharedPreferences.edit().putInt("background_volume", volume).apply()
     }
 
     fun setDistractionFreeMode(enabled: Boolean) {

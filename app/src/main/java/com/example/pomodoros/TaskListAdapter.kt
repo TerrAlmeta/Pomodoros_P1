@@ -1,5 +1,7 @@
 package com.example.pomodoros
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +18,25 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksC
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val current = getItem(position)
-        holder.bind(current.name)
+        holder.bind(current)
     }
 
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val taskItemView: TextView = itemView.findViewById(R.id.textView)
+        private val cyclesTextView: TextView = itemView.findViewById(R.id.cycles_text_view)
 
-        fun bind(text: String?) {
-            taskItemView.text = text
+        fun bind(task: Task) {
+            taskItemView.text = task.name
+            cyclesTextView.text = task.cycles.toString()
+            if (task.color.isNotEmpty()) {
+                val color = Color.parseColor(task.color)
+                taskItemView.setTextColor(color)
+                cyclesTextView.setTextColor(color)
+                val border = GradientDrawable()
+                border.setColor(Color.TRANSPARENT)
+                border.setStroke(4, color)
+                itemView.background = border
+            }
         }
 
         companion object {

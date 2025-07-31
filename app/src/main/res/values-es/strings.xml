@@ -28,4 +28,34 @@
     <string name="some_permissions_are_missing">Faltan algunos permisos</string>
     <string name="add_task">Añadir tarea</string>
     <string name="manage_permissions_description">Gestionar permisos de la aplicación</string>
+    <string name="play_preview">Reproducir vista previa</string>
+
+    <string-array name="alarm_sound_names">
+        <item>Vibración</item>
+        <item>Alarma 1</item>
+        <item>Alarma 2</item>
+        <item>Alarma 3</item>
+        <item>Alarma 4</item>
+        <item>Alarma 5</item>
+        <item>Alarma 6</item>
+        <item>Aplausos</item>
+        <item>Campana</item>
+        <item>Chapuzón</item>
+        <item>Estoy bien</item>
+        <item>Toc Toc</item>
+    </string-array>
+
+    <string-array name="background_sound_names">
+        <item>Ninguno</item>
+        <item>Teclado</item>
+        <item>Piano</item>
+        <item>Meditación</item>
+        <item>Fuego</item>
+        <item>Cristal</item>
+        <item>Lluvia</item>
+        <item>Viento</item>
+        <item>Burbujas</item>
+        <item>Cafetería</item>
+        <item>Pasos</item>
+    </string-array>
 </resources>

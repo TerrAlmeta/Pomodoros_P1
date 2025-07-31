@@ -27,4 +27,34 @@
     <string name="some_permissions_are_missing">Some permissions are missing</string>
     <string name="add_task">Add Task</string>
     <string name="manage_permissions_description">Manage app permissions</string>
+    <string name="play_preview">Play preview</string>
+
+    <string-array name="alarm_sound_names">
+        <item>Vibration</item>
+        <item>Alarm 1</item>
+        <item>Alarm 2</item>
+        <item>Alarm 3</item>
+        <item>Alarm 4</item>
+        <item>Alarm 5</item>
+        <item>Alarm 6</item>
+        <item>Applause</item>
+        <item>Bell</item>
+        <item>Splash</item>
+        <item>I\'m fine</item>
+        <item>Knock Knock</item>
+    </string-array>
+
+    <string-array name="background_sound_names">
+        <item>None</item>
+        <item>Keyboard</item>
+        <item>Piano</item>
+        <item>Meditation</item>
+        <item>Fire</item>
+        <item>Crystal</item>
+        <item>Rain</item>
+        <item>Wind</item>
+        <item>Bubbles</item>
+        <item>Coffee Shop</item>
+        <item>Steps</item>
+    </string-array>
 </resources>

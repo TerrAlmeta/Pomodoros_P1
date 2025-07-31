@@ -13,6 +13,7 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.IBinder
 import android.os.Vibrator
+import android.net.Uri
 import android.os.VibrationEffect
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -124,9 +125,15 @@ class TimerService : Service() {
             mediaPlayer?.release()
             val resId = getSoundResId(soundName)
             if (resId != 0) {
-                mediaPlayer = MediaPlayer.create(this, resId)
-                mediaPlayer?.isLooping = true
-                mediaPlayer?.start()
+                val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
+                val volume = sharedPreferences.getInt("background_volume", 100) / 100f
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(applicationContext, Uri.parse("android.resource://$packageName/$resId"))
+                    isLooping = true
+                    setVolume(volume, volume)
+                    prepare()
+                    start()
+                }
             }
         }
     }
@@ -137,7 +144,10 @@ class TimerService : Service() {
     }
 
     private fun playAlarm(alarmSound: String?) {
-        if (alarmSound == "Vibration") {
+        val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
+        val alarmVolume = sharedPreferences.getInt("alarm_volume", 100)
+
+        if (alarmSound == "Vibration" || alarmVolume == 0) {
             val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             if (VERSION.SDK_INT >= VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(3000, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -148,7 +158,9 @@ class TimerService : Service() {
         } else if (alarmSound != null) {
             val resId = getSoundResId(alarmSound)
             if (resId != 0) {
+                val volume = alarmVolume / 100f
                 val alarmPlayer = MediaPlayer.create(this, resId)
+                alarmPlayer.setVolume(volume, volume)
                 alarmPlayer.start()
                 alarmPlayer.setOnCompletionListener { it.release() }
             }
