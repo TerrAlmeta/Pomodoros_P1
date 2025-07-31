@@ -12,20 +12,30 @@ import androidx.recyclerview.widget.RecyclerView
 
 class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksComparator()) {
 
+    private var listener: OnItemClickListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         return TaskViewHolder.create(parent)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val current = getItem(position)
-        holder.bind(current)
+        holder.bind(current, listener)
+    }
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.listener = listener
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(task: Task)
     }
 
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val taskItemView: TextView = itemView.findViewById(R.id.textView)
         private val cyclesTextView: TextView = itemView.findViewById(R.id.cycles_text_view)
 
-        fun bind(task: Task) {
+        fun bind(task: Task, listener: OnItemClickListener?) {
             taskItemView.text = task.name
             cyclesTextView.text = task.cycles.toString()
             if (task.color.isNotEmpty()) {
@@ -36,6 +46,9 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksC
                 border.setColor(Color.TRANSPARENT)
                 border.setStroke(4, color)
                 itemView.background = border
+            }
+            itemView.setOnClickListener {
+                listener?.onItemClick(task)
             }
         }
 

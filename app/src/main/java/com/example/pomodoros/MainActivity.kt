@@ -65,23 +65,24 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val itemTouchHelper = ItemTouchHelper(
-            ItemMoveCallback(
-                { fromPosition, toPosition ->
-                    val list = mainViewModel.allTasks.value?.toMutableList()
-                    if (list != null) {
-                        Collections.swap(list, fromPosition, toPosition)
-                        updateTaskOrder(list)
-                    }
-                },
-                { position ->
-                    val task = mainViewModel.allTasks.value?.get(position)
-                    if (task != null) {
-                        mainViewModel.delete(task)
-                    }
-                })
-        )
+        val swipeHandler = object : SwipeToEditCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = recyclerView.adapter as TaskListAdapter
+                val position = viewHolder.adapterPosition
+                val task = adapter.currentList[position]
+                mainViewModel.delete(task)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        adapter.setOnItemClickListener(object : TaskListAdapter.OnItemClickListener {
+            override fun onItemClick(task: Task) {
+                val intent = Intent(this@MainActivity, TaskDetailActivity::class.java)
+                intent.putExtra("TASK_ID", task.id)
+                startActivity(intent)
+            }
+        })
 
         findViewById<Button>(R.id.start_button).setOnClickListener {
             currentTask?.let {

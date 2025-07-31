@@ -20,8 +20,7 @@
             android:hint="@string/task_name"
             android:inputType="text"
             android:minHeight="48dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
+            style="@style/CustomEditTextStyle" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,7 +44,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white" />
+                style="@style/CustomEditTextStyle" />
         </LinearLayout>
 
         <LinearLayout
@@ -70,7 +69,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white" />
+                style="@style/CustomEditTextStyle" />
         </LinearLayout>
 
         <LinearLayout
@@ -95,7 +94,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white" />
+                style="@style/CustomEditTextStyle" />
         </LinearLayout>
 
         <LinearLayout
@@ -120,7 +119,7 @@
                 android:inputType="number"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:textColor="@color/white" />
+                style="@style/CustomEditTextStyle" />
         </LinearLayout>
 
         <TextView
@@ -134,7 +133,8 @@
             android:id="@+id/pomodoro_alarm_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            style="@style/CustomSpinnerStyle" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -147,7 +147,8 @@
             android:id="@+id/short_break_alarm_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            style="@style/CustomSpinnerStyle" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -160,7 +161,8 @@
             android:id="@+id/long_break_alarm_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            style="@style/CustomSpinnerStyle" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -173,7 +175,8 @@
             android:id="@+id/pomodoro_background_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            style="@style/CustomSpinnerStyle" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -186,7 +189,8 @@
             android:id="@+id/short_break_background_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            style="@style/CustomSpinnerStyle" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -199,7 +203,8 @@
             android:id="@+id/long_break_background_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            style="@style/CustomSpinnerStyle" />
 
         <TextView
             android:layout_width="wrap_content"

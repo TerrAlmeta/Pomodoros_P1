@@ -125,13 +125,10 @@ class TimerService : Service() {
             if (resId != 0) {
                 val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
                 val volume = sharedPreferences.getInt("background_volume", 100) / 100f
-                mediaPlayer = MediaPlayer().apply {
-                    setDataSource(applicationContext, Uri.parse("android.resource://$packageName/$resId"))
-                    isLooping = true
-                    setVolume(volume, volume)
-                    prepare()
-                    start()
-                }
+                mediaPlayer = MediaPlayer.create(this, resId)
+                mediaPlayer?.isLooping = true
+                mediaPlayer?.setVolume(volume, volume)
+                mediaPlayer?.start()
             }
         }
     }

@@ -30,6 +30,8 @@
     <string name="play_preview">Play preview</string>
     <string name="short_break">Short Break</string>
     <string name="long_break">Long Break</string>
+    <string name="edit_task">Edit Task</string>
+    <string name="delete_task">Delete Task</string>
 
     <string-array name="alarm_sound_names">
         <item>Vibration</item>

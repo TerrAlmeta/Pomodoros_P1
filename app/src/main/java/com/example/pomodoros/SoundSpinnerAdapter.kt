@@ -2,6 +2,9 @@ package com.example.pomodoros
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,7 +70,22 @@ class SoundSpinnerAdapter(
 
                 // Play the new sound
                 val fileName = soundFiles[soundName]
-                if (fileName != null && fileName != "None" && fileName != "Vibration") {
+                if (fileName == "Vibration") {
+                    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
+                        vibratorManager.defaultVibrator
+                    } else {
+                        @Suppress("DEPRECATION")
+                        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(3000, VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        //deprecated in API 26
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(3000)
+                    }
+                } else if (fileName != null && fileName != "None") {
                     val resId = getSoundResId(fileName)
                     if (resId != 0) {
                         mediaPlayer = MediaPlayer.create(context, resId)
