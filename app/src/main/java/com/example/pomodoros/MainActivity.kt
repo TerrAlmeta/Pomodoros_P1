@@ -38,7 +38,6 @@ import android.widget.SeekBar
 class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbackListener {
 
     private val mainViewModel: MainViewModel by viewModels()
-    private val settingsViewModel: SettingsViewModel by viewModels()
     private lateinit var adapter: TaskListAdapter
     private var currentTask: Task? = null
     private lateinit var timerReceiver: BroadcastReceiver
@@ -83,16 +82,6 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         }
 
         val navView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)
-        navView.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_settings -> {
-                    val intent = Intent(this, SettingsActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
         val headerView = navView.getHeaderView(0)
         headerView.findViewById<View>(R.id.close_nav_drawer_button).setOnClickListener {
             findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout).close()
@@ -105,13 +94,6 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
-        adapter.setOnItemClickListener(object : TaskListAdapter.OnItemClickListener {
-            override fun onItemClick(task: Task) {
-                task.isSelected = !task.isSelected
-                mainViewModel.update(task)
-            }
-        })
 
         val languageSpinner = findViewById<Spinner>(R.id.language_spinner)
         val languages = listOf("English", "Español")
@@ -150,12 +132,11 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         }
 
         val alarmVolumeSeekBar = findViewById<SeekBar>(R.id.alarm_volume_seek_bar)
-        settingsViewModel.alarmVolume.observe(this) { volume ->
-            alarmVolumeSeekBar.progress = volume
-        }
+        val sharedPreferences = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
+        alarmVolumeSeekBar.progress = sharedPreferences.getInt("alarm_volume", 100)
         alarmVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                settingsViewModel.setAlarmVolume(progress)
+                sharedPreferences.edit().putInt("alarm_volume", progress).apply()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -163,12 +144,10 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         })
 
         val backgroundVolumeSeekBar = findViewById<SeekBar>(R.id.background_volume_seek_bar)
-        settingsViewModel.backgroundVolume.observe(this) { volume ->
-            backgroundVolumeSeekBar.progress = volume
-        }
+        backgroundVolumeSeekBar.progress = sharedPreferences.getInt("background_volume", 100)
         backgroundVolumeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                settingsViewModel.setBackgroundVolume(progress)
+                sharedPreferences.edit().putInt("background_volume", progress).apply()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -360,8 +339,9 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
 
         val sharedPref = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
-        sharedPref.edit {
+        with(sharedPref.edit()) {
             putString("language", languageCode)
+            apply()
         }
         recreate()
     }
