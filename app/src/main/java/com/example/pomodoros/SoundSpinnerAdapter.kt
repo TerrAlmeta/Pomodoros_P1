@@ -16,8 +16,7 @@ class SoundSpinnerAdapter(
     context: Context,
     private val soundNames: Array<String>,
     private val soundFiles: Map<String, String>,
-    private val getSoundResId: (String) -> Int,
-    private val onPlayPauseClicked: (String) -> Unit
+    private val getSoundResId: (String) -> Int
 ) : ArrayAdapter<String>(context, 0, soundNames) {
 
     private var mediaPlayer: MediaPlayer? = null

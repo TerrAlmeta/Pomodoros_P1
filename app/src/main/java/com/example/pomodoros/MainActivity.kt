@@ -4,27 +4,28 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.core.content.ContextCompat
-import java.util.Locale
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import android.os.Handler
-import android.graphics.Color
-import android.os.Looper
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.Collections
+import java.util.*
 
 class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbackListener {
 
@@ -71,7 +72,11 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
             findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout).close()
         }
 
-        val swipeHandler = object : SwipeToEditCallback(this, this) {}
+        val swipeHandler = object : SwipeToEditCallback(this, this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                // Do nothing here. The actions will be handled by click listeners on the buttons.
+            }
+        }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
@@ -151,13 +156,6 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         stopService(intent)
     }
 
-    private fun updateTaskOrder(tasks: List<Task>) {
-        for (i in tasks.indices) {
-            val task = tasks[i].copy(order = i)
-            mainViewModel.update(task)
-        }
-    }
-
     private fun updateCurrentTaskUI() {
         val taskTitleTextView = findViewById<TextView>(R.id.task_title)
         val timerTextView = findViewById<TextView>(R.id.timer_text)
@@ -170,7 +168,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
 
         currentTask?.color?.let {
             if (it.isNotEmpty()) {
-                val color = Color.parseColor(it)
+                val color = it.toColorInt()
                 taskTitleTextView.setTextColor(color)
                 timerTextView.setTextColor(color)
             }
@@ -180,7 +178,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val batteryOptimizationIntent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-            batteryOptimizationIntent.data = Uri.parse("package:$packageName")
+            batteryOptimizationIntent.data = "package:$packageName".toUri()
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {}.launch(batteryOptimizationIntent)
         }
 

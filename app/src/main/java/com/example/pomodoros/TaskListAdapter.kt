@@ -12,26 +12,24 @@ import androidx.recyclerview.widget.RecyclerView
 
 class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksComparator()) {
 
-    private var listener: OnItemClickListener? = null
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         return TaskViewHolder.create(parent)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val current = getItem(position)
-        holder.bind(current, listener)
+        holder.bind(current)
     }
 
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val taskItemView: TextView = itemView.findViewById(R.id.textView)
         private val cyclesTextView: TextView = itemView.findViewById(R.id.cycles_text_view)
 
-        fun bind(task: Task, listener: OnItemClickListener?) {
+        fun bind(task: Task) {
             taskItemView.text = task.name
             cyclesTextView.text = task.cycles.toString()
             if (task.color.isNotEmpty()) {
-                val color = Color.parseColor(task.color)
+                val color = task.color.toColorInt()
                 taskItemView.setTextColor(color)
                 cyclesTextView.setTextColor(color)
                 val border = GradientDrawable()

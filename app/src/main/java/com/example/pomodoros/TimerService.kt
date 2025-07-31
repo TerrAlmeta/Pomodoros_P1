@@ -131,7 +131,7 @@ class TimerService : Service() {
             mediaPlayer?.release()
             val resId = getSoundResId(soundName)
             if (resId != 0) {
-                val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
+                val sharedPreferences = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
                 val volume = sharedPreferences.getInt("background_volume", 100) / 100f
                 mediaPlayer = MediaPlayer.create(this, resId)
                 mediaPlayer?.isLooping = true
@@ -155,7 +155,7 @@ class TimerService : Service() {
 
         if (alarmSound == "Vibration" || alarmVolume == 0) {
             val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
+                val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
                 vibratorManager.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")

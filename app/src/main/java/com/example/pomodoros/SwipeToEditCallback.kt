@@ -20,7 +20,6 @@ abstract class SwipeToEditCallback(context: Context, private val listener: Swipe
     private val intrinsicWidth = editIcon.intrinsicWidth
     private val intrinsicHeight = editIcon.intrinsicHeight
     private val background = Paint()
-    private val clearPaint = Paint()
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             // This is where we will handle the click events
@@ -55,7 +54,7 @@ abstract class SwipeToEditCallback(context: Context, private val listener: Swipe
         val isCanceled = dX == 0f && !isCurrentlyActive
 
         if (isCanceled) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, false)
             return
         }
 

@@ -2,6 +2,8 @@ package com.example.pomodoros
 
 import android.app.NotificationManager
 import android.content.Context
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +17,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import com.google.android.material.switchmaterial.SwitchMaterial
 import java.util.Locale
 
@@ -55,7 +58,6 @@ class SettingsActivity : AppCompatActivity() {
 
         val distractionFreeSwitch = findViewById<SwitchMaterial>(R.id.distraction_free_switch)
         distractionFreeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setDistractionFreeMode(isChecked)
             if (isChecked) {
                 requestDoNotDisturb()
             } else {
@@ -119,15 +121,13 @@ class SettingsActivity : AppCompatActivity() {
     private fun setLocale(languageCode: String) {
         val locale = Locale.forLanguageTag(languageCode)
         Locale.setDefault(locale)
-        val resources = resources
         val config = resources.configuration
         config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
+        baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
 
         val sharedPref = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
-        with(sharedPref.edit()) {
+        sharedPref.edit {
             putString("language", languageCode)
-            apply()
         }
         recreate()
     }
