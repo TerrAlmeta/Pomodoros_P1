@@ -96,9 +96,6 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        val navView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)
-        val headerView = navView.getHeaderView(0)
-
         val languageSpinner = headerView.findViewById<Spinner>(R.id.language_spinner)
         val languages = listOf("English", "Español")
         val languageAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)

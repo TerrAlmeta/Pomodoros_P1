@@ -33,7 +33,6 @@
         <service android:name=".TimerService"
             android:foregroundServiceType="mediaPlayback"
             android:attributionTags="media" />
-        <activity android:name=".SettingsActivity" />
         <activity android:name=".TaskDetailActivity" />
     </application>
 
