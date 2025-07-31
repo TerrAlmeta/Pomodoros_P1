@@ -67,6 +67,16 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         }
 
         val navView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)
+        navView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.nav_settings -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
         val headerView = navView.getHeaderView(0)
         headerView.findViewById<View>(R.id.close_nav_drawer_button).setOnClickListener {
             findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout).close()
@@ -132,17 +142,6 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     private fun startTimer(duration: Long, alarmSound: String?, backgroundSound: String?) {
         val intent = Intent(this, TimerService::class.java)
         intent.putExtra("duration", duration)
@@ -168,7 +167,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
 
         currentTask?.color?.let {
             if (it.isNotEmpty()) {
-                val color = it.toColorInt()
+                val color = Color.parseColor(it)
                 taskTitleTextView.setTextColor(color)
                 timerTextView.setTextColor(color)
             }

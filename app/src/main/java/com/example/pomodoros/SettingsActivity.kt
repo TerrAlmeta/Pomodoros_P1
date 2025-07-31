@@ -2,8 +2,6 @@ package com.example.pomodoros
 
 import android.app.NotificationManager
 import android.content.Context
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle

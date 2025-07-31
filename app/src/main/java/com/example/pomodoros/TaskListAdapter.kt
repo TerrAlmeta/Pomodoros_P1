@@ -29,7 +29,7 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksC
             taskItemView.text = task.name
             cyclesTextView.text = task.cycles.toString()
             if (task.color.isNotEmpty()) {
-                val color = task.color.toColorInt()
+                val color = Color.parseColor(task.color)
                 taskItemView.setTextColor(color)
                 cyclesTextView.setTextColor(color)
                 val border = GradientDrawable()

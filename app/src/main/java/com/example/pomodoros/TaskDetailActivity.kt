@@ -53,16 +53,12 @@ class TaskDetailActivity : AppCompatActivity() {
         val shortBreakBackgroundSpinner = findViewById<Spinner>(R.id.short_break_background_spinner)
         val longBreakBackgroundSpinner = findViewById<Spinner>(R.id.long_break_background_spinner)
 
-        val alarmAdapter = SoundSpinnerAdapter(this, alarmSoundNames, alarmSounds, ::getSoundResId) { soundName ->
-            // This is where we would handle the play/pause click if we needed to do something in the activity
-        }
+        val alarmAdapter = SoundSpinnerAdapter(this, alarmSoundNames, alarmSounds, ::getSoundResId)
         pomodoroAlarmSpinner.adapter = alarmAdapter
         shortBreakAlarmSpinner.adapter = alarmAdapter
         longBreakAlarmSpinner.adapter = alarmAdapter
 
-        val backgroundAdapter = SoundSpinnerAdapter(this, backgroundSoundNames, backgroundSounds, ::getSoundResId) { soundName ->
-            // This is where we would handle the play/pause click if we needed to do something in the activity
-        }
+        val backgroundAdapter = SoundSpinnerAdapter(this, backgroundSoundNames, backgroundSounds, ::getSoundResId)
         pomodoroBackgroundSpinner.adapter = backgroundAdapter
         shortBreakBackgroundSpinner.adapter = backgroundAdapter
         longBreakBackgroundSpinner.adapter = backgroundAdapter
