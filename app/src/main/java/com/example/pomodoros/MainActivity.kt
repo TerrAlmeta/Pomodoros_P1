@@ -26,7 +26,7 @@ import android.os.Looper
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Collections
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbackListener {
 
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var adapter: TaskListAdapter
@@ -65,24 +65,16 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val swipeHandler = object : SwipeToEditCallback(this) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val adapter = recyclerView.adapter as TaskListAdapter
-                val position = viewHolder.adapterPosition
-                val task = adapter.currentList[position]
-                mainViewModel.delete(task)
-            }
+        val navView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)
+        val headerView = navView.getHeaderView(0)
+        headerView.findViewById<View>(R.id.close_nav_drawer_button).setOnClickListener {
+            findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout).close()
         }
+
+        val swipeHandler = object : SwipeToEditCallback(this, this) {}
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        adapter.setOnItemClickListener(object : TaskListAdapter.OnItemClickListener {
-            override fun onItemClick(task: Task) {
-                val intent = Intent(this@MainActivity, TaskDetailActivity::class.java)
-                intent.putExtra("TASK_ID", task.id)
-                startActivity(intent)
-            }
-        })
 
         findViewById<Button>(R.id.start_button).setOnClickListener {
             currentTask?.let {
@@ -242,5 +234,17 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onEditClicked(position: Int) {
+        val task = adapter.currentList[position]
+        val intent = Intent(this, TaskDetailActivity::class.java)
+        intent.putExtra("TASK_ID", task.id)
+        startActivity(intent)
+    }
+
+    override fun onDeleteClicked(position: Int) {
+        val task = adapter.currentList[position]
+        mainViewModel.delete(task)
     }
 }

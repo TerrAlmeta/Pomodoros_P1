@@ -122,6 +122,7 @@ class SettingsActivity : AppCompatActivity() {
         val resources = resources
         val config = resources.configuration
         config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
 
         val sharedPref = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
         with(sharedPref.edit()) {
@@ -129,5 +130,15 @@ class SettingsActivity : AppCompatActivity() {
             apply()
         }
         recreate()
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val sharedPref = newBase.getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
+        val language = sharedPref.getString("language", "en") ?: "en"
+        val locale = Locale.forLanguageTag(language)
+        val config = newBase.resources.configuration
+        config.setLocale(locale)
+        applyOverrideConfiguration(config)
+        super.attachBaseContext(newBase)
     }
 }

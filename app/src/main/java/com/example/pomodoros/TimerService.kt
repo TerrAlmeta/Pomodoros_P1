@@ -22,6 +22,7 @@ class TimerService : Service() {
     private val notificationId = 1
     private var countDownTimer: CountDownTimer? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var alarmPlayer: MediaPlayer? = null
 
     companion object {
         const val TIMER_UPDATE = "TIMER_UPDATE"
@@ -77,6 +78,13 @@ class TimerService : Service() {
         super.onDestroy()
         countDownTimer?.cancel()
         stopBackgroundSound()
+        alarmPlayer?.release()
+        alarmPlayer = null
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        stopSelf()
     }
 
     private fun createNotificationChannel() {
@@ -134,6 +142,9 @@ class TimerService : Service() {
     }
 
     private fun stopBackgroundSound() {
+        if (mediaPlayer?.isPlaying == true) {
+            mediaPlayer?.stop()
+        }
         mediaPlayer?.release()
         mediaPlayer = null
     }
@@ -161,10 +172,13 @@ class TimerService : Service() {
             val resId = getSoundResId(alarmSound)
             if (resId != 0) {
                 val volume = alarmVolume / 100f
-                val alarmPlayer = MediaPlayer.create(this, resId)
-                alarmPlayer.setVolume(volume, volume)
-                alarmPlayer.start()
-                alarmPlayer.setOnCompletionListener { it.release() }
+                alarmPlayer = MediaPlayer.create(this, resId)
+                alarmPlayer?.setVolume(volume, volume)
+                alarmPlayer?.setOnCompletionListener {
+                    it.release()
+                    alarmPlayer = null
+                }
+                alarmPlayer?.start()
             }
         }
     }

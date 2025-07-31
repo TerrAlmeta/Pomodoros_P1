@@ -6,11 +6,14 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class SwipeToEditCallback(context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+abstract class SwipeToEditCallback(context: Context, private val listener: SwipeToEditCallbackListener) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
     private val editIcon: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_edit)!!
     private val deleteIcon: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_delete)!!
@@ -18,6 +21,17 @@ abstract class SwipeToEditCallback(context: Context) : ItemTouchHelper.SimpleCal
     private val intrinsicHeight = editIcon.intrinsicHeight
     private val background = Paint()
     private val clearPaint = Paint()
+    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            // This is where we will handle the click events
+            return true
+        }
+    })
+
+    interface SwipeToEditCallbackListener {
+        fun onEditClicked(position: Int)
+        fun onDeleteClicked(position: Int)
+    }
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -85,7 +99,35 @@ abstract class SwipeToEditCallback(context: Context) : ItemTouchHelper.SimpleCal
         editIcon.setBounds(editIconLeft, deleteIconTop, editIconRight, deleteIconBottom)
         editIcon.draw(c)
 
-
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    override fun onChildDrawOver(
+        c: Canvas,
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder?,
+        dX: Float,
+        dY: Float,
+        actionState: Int,
+        isCurrentlyActive: Boolean
+    ) {
+        val itemView = viewHolder?.itemView
+        if (itemView != null) {
+            val isCanceled = dX == 0f && !isCurrentlyActive
+            if (!isCanceled) {
+                recyclerView.setOnTouchListener { _, event ->
+                    gestureDetector.onTouchEvent(event)
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        if (dX < -2 * intrinsicWidth) {
+                            listener.onDeleteClicked(viewHolder.adapterPosition)
+                        } else if (dX < -intrinsicWidth) {
+                            listener.onEditClicked(viewHolder.adapterPosition)
+                        }
+                    }
+                    false
+                }
+            }
+        }
+        super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     }
 }
