@@ -1,10 +1,9 @@
 package com.example.pomodoros
 
+import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
@@ -54,14 +53,14 @@ class TaskDetailActivity : AppCompatActivity() {
         val shortBreakBackgroundSpinner = findViewById<Spinner>(R.id.short_break_background_spinner)
         val longBreakBackgroundSpinner = findViewById<Spinner>(R.id.long_break_background_spinner)
 
-        val alarmAdapter = SoundSpinnerAdapter(this, alarmSoundNames.toTypedArray(), alarmSounds, ::getSoundResId) { soundName ->
+        val alarmAdapter = SoundSpinnerAdapter(this, alarmSoundNames, alarmSounds, ::getSoundResId) { soundName ->
             // This is where we would handle the play/pause click if we needed to do something in the activity
         }
         pomodoroAlarmSpinner.adapter = alarmAdapter
         shortBreakAlarmSpinner.adapter = alarmAdapter
         longBreakAlarmSpinner.adapter = alarmAdapter
 
-        val backgroundAdapter = SoundSpinnerAdapter(this, backgroundSoundNames.toTypedArray(), backgroundSounds, ::getSoundResId) { soundName ->
+        val backgroundAdapter = SoundSpinnerAdapter(this, backgroundSoundNames, backgroundSounds, ::getSoundResId) { soundName ->
             // This is where we would handle the play/pause click if we needed to do something in the activity
         }
         pomodoroBackgroundSpinner.adapter = backgroundAdapter
@@ -77,22 +76,22 @@ class TaskDetailActivity : AppCompatActivity() {
                     longBreakDurationEditText.setText(it.longBreakDuration.toString())
                     cyclesEditText.setText(it.cycles.toString())
 
-                    val pomodoroAlarmName = alarmSounds.entries.find { it.value == task.pomodoroAlarmSound }?.key
+                    val pomodoroAlarmName = alarmSounds.entries.find { entry -> entry.value == task.pomodoroAlarmSound }?.key
                     pomodoroAlarmSpinner.setSelection(alarmSoundNames.indexOf(pomodoroAlarmName))
 
-                    val shortBreakAlarmName = alarmSounds.entries.find { it.value == task.shortBreakAlarmSound }?.key
+                    val shortBreakAlarmName = alarmSounds.entries.find { entry -> entry.value == task.shortBreakAlarmSound }?.key
                     shortBreakAlarmSpinner.setSelection(alarmSoundNames.indexOf(shortBreakAlarmName))
 
-                    val longBreakAlarmName = alarmSounds.entries.find { it.value == task.longBreakAlarmSound }?.key
+                    val longBreakAlarmName = alarmSounds.entries.find { entry -> entry.value == task.longBreakAlarmSound }?.key
                     longBreakAlarmSpinner.setSelection(alarmSoundNames.indexOf(longBreakAlarmName))
 
-                    val pomodoroBackgroundName = backgroundSounds.entries.find { it.value == task.pomodoroBackgroundSound }?.key
+                    val pomodoroBackgroundName = backgroundSounds.entries.find { entry -> entry.value == task.pomodoroBackgroundSound }?.key
                     pomodoroBackgroundSpinner.setSelection(backgroundSoundNames.indexOf(pomodoroBackgroundName))
 
-                    val shortBreakBackgroundName = backgroundSounds.entries.find { it.value == task.shortBreakBackgroundSound }?.key
+                    val shortBreakBackgroundName = backgroundSounds.entries.find { entry -> entry.value == task.shortBreakBackgroundSound }?.key
                     shortBreakBackgroundSpinner.setSelection(backgroundSoundNames.indexOf(shortBreakBackgroundName))
 
-                    val longBreakBackgroundName = backgroundSounds.entries.find { it.value == task.longBreakBackgroundSound }?.key
+                    val longBreakBackgroundName = backgroundSounds.entries.find { entry -> entry.value == task.longBreakBackgroundSound }?.key
                     longBreakBackgroundSpinner.setSelection(backgroundSoundNames.indexOf(longBreakBackgroundName))
 
                     selectedColor = it.color
@@ -143,12 +142,12 @@ class TaskDetailActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val pomodoroAlarm = alarmSounds[pomodoroAlarmSpinner.selectedItem.toString()]
-            val shortBreakAlarm = alarmSounds[shortBreakAlarmSpinner.selectedItem.toString()]
-            val longBreakAlarm = alarmSounds[longBreakAlarmSpinner.selectedItem.toString()]
-            val pomodoroBackground = backgroundSounds[pomodoroBackgroundSpinner.selectedItem.toString()]
-            val shortBreakBackground = backgroundSounds[shortBreakBackgroundSpinner.selectedItem.toString()]
-            val longBreakBackground = backgroundSounds[longBreakBackgroundSpinner.selectedItem.toString()]
+            val pomodoroAlarm = alarmSounds[pomodoroAlarmSpinner.selectedItem.toString()] ?: "Vibration"
+            val shortBreakAlarm = alarmSounds[shortBreakAlarmSpinner.selectedItem.toString()] ?: "Vibration"
+            val longBreakAlarm = alarmSounds[longBreakAlarmSpinner.selectedItem.toString()] ?: "Vibration"
+            val pomodoroBackground = backgroundSounds[pomodoroBackgroundSpinner.selectedItem.toString()] ?: "None"
+            val shortBreakBackground = backgroundSounds[shortBreakBackgroundSpinner.selectedItem.toString()] ?: "None"
+            val longBreakBackground = backgroundSounds[longBreakBackgroundSpinner.selectedItem.toString()] ?: "None"
 
             if (taskId != -1) {
                 val task = Task(
@@ -193,18 +192,6 @@ class TaskDetailActivity : AppCompatActivity() {
             finish()
         }
 
-    }
-
-    private fun playSound(soundName: String) {
-        mediaPlayer?.release()
-        val resId = getSoundResId(soundName)
-        if (resId != 0) {
-            val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
-            val volume = sharedPreferences.getInt("alarm_volume", 100) / 100f
-            mediaPlayer = MediaPlayer.create(this, resId)
-            mediaPlayer?.setVolume(volume, volume)
-            mediaPlayer?.start()
-        }
     }
 
     private fun getSoundResId(soundName: String): Int {

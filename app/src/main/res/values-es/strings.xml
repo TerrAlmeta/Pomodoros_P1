@@ -29,6 +29,8 @@
     <string name="add_task">Añadir tarea</string>
     <string name="manage_permissions_description">Gestionar permisos de la aplicación</string>
     <string name="play_preview">Reproducir vista previa</string>
+    <string name="short_break">Descanso Corto</string>
+    <string name="long_break">Descanso Largo</string>
 
     <string-array name="alarm_sound_names">
         <item>Vibración</item>

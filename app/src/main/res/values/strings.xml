@@ -28,6 +28,8 @@
     <string name="add_task">Add Task</string>
     <string name="manage_permissions_description">Manage app permissions</string>
     <string name="play_preview">Play preview</string>
+    <string name="short_break">Short Break</string>
+    <string name="long_break">Long Break</string>
 
     <string-array name="alarm_sound_names">
         <item>Vibration</item>

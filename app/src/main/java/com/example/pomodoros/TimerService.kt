@@ -9,8 +9,6 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.CountDownTimer
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.os.IBinder
 import android.os.Vibrator
 import android.net.Uri
@@ -88,7 +86,7 @@ class TimerService : Service() {
                 "Timer Service Channel",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            val manager = getSystemService(NotificationManager::class.java)
+            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(serviceChannel)
         }
     }
@@ -144,15 +142,22 @@ class TimerService : Service() {
     }
 
     private fun playAlarm(alarmSound: String?) {
-        val sharedPreferences = getSharedPreferences("pomodoro_prefs", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences("pomodoro_prefs", MODE_PRIVATE)
         val alarmVolume = sharedPreferences.getInt("alarm_volume", 100)
 
         if (alarmSound == "Vibration" || alarmVolume == 0) {
-            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            if (VERSION.SDK_INT >= VERSION_CODES.O) {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
+                vibratorManager.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(VIBRATOR_SERVICE) as Vibrator
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(3000, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 //deprecated in API 26
+                @Suppress("DEPRECATION")
                 vibrator.vibrate(3000)
             }
         } else if (alarmSound != null) {
