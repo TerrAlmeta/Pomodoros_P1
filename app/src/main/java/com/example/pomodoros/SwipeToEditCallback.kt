@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class SwipeToEditCallback(context: Context, private val listener: SwipeToEditCallbackListener) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+abstract class SwipeToEditCallback(context: Context, private val listener: SwipeToEditCallbackListener) : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
     private val editIcon: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_edit)!!
     private val deleteIcon: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_delete)!!
@@ -30,6 +30,7 @@ abstract class SwipeToEditCallback(context: Context, private val listener: Swipe
     interface SwipeToEditCallbackListener {
         fun onEditClicked(position: Int)
         fun onDeleteClicked(position: Int)
+        fun onItemMove(fromPosition: Int, toPosition: Int)
     }
 
     override fun onMove(
@@ -37,7 +38,8 @@ abstract class SwipeToEditCallback(context: Context, private val listener: Swipe
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        return false
+        listener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
+        return true
     }
 
     override fun onChildDraw(

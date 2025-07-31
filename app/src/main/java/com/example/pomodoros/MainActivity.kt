@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,10 +19,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -43,6 +46,13 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
 
         requestPermissions()
 
@@ -90,6 +100,13 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
+        adapter.setOnItemClickListener(object : TaskListAdapter.OnItemClickListener {
+            override fun onItemClick(task: Task) {
+                task.isSelected = !task.isSelected
+                mainViewModel.update(task)
+            }
+        })
+
 
         findViewById<Button>(R.id.start_button).setOnClickListener {
             currentTask?.let {
@@ -118,6 +135,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
         timerReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val millisUntilFinished = intent?.getLongExtra(TimerService.TIMER_VALUE, 0) ?: 0
+                Log.d("MainActivity", "onReceive called with millisUntilFinished: $millisUntilFinished")
                 if (millisUntilFinished > 0) {
                     val minutes = (millisUntilFinished / 1000) / 60
                     val seconds = (millisUntilFinished / 1000) % 60
@@ -143,6 +161,7 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
     }
 
     private fun startTimer(duration: Long, alarmSound: String?, backgroundSound: String?) {
+        Log.d("MainActivity", "startTimer called with duration: $duration")
         val intent = Intent(this, TimerService::class.java)
         intent.putExtra("duration", duration)
         intent.putExtra("alarmSound", alarmSound)
@@ -243,5 +262,18 @@ class MainActivity : AppCompatActivity(), SwipeToEditCallback.SwipeToEditCallbac
     override fun onDeleteClicked(position: Int) {
         val task = adapter.currentList[position]
         mainViewModel.delete(task)
+    }
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+        val list = adapter.currentList.toMutableList()
+        Collections.swap(list, fromPosition, toPosition)
+        updateTaskOrder(list)
+    }
+
+    private fun updateTaskOrder(tasks: List<Task>) {
+        for (i in tasks.indices) {
+            val task = tasks[i].copy(order = i)
+            mainViewModel.update(task)
+        }
     }
 }

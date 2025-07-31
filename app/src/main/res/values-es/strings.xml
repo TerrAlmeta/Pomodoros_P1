@@ -34,6 +34,8 @@
     <string name="edit_task">Editar Tarea</string>
     <string name="delete_task">Eliminar Tarea</string>
     <string name="close_menu">Cerrar Menú</string>
+    <string name="navigation_drawer_open">Abrir menú de navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
 
     <string-array name="alarm_sound_names">
         <item>Vibración</item>

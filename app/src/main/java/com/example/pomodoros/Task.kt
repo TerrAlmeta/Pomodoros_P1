@@ -19,5 +19,6 @@ data class Task(
     val shortBreakBackgroundSound: String,
     val longBreakBackgroundSound: String,
     val color: String,
-    val order: Int
+    val order: Int,
+    var isSelected: Boolean = false
 )

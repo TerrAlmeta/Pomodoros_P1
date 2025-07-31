@@ -16,7 +16,6 @@ class TaskDetailActivity : AppCompatActivity() {
     private val taskDetailViewModel: TaskDetailViewModel by viewModels()
     private var taskId: Int = -1
     private var selectedColor: String = ""
-    private var mediaPlayer: MediaPlayer? = null
     private lateinit var colorViews: List<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -215,12 +214,6 @@ class TaskDetailActivity : AppCompatActivity() {
             "background10" -> R.raw.background10
             else -> 0
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mediaPlayer?.release()
-        mediaPlayer = null
     }
 
     private fun updateColorSelection(selectedView: View, color: String) {

@@ -33,6 +33,8 @@
     <string name="edit_task">Edit Task</string>
     <string name="delete_task">Delete Task</string>
     <string name="close_menu">Close Menu</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string-array name="alarm_sound_names">
         <item>Vibration</item>

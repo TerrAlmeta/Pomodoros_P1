@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.os.Vibrator
 import android.net.Uri
 import android.os.VibrationEffect
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 
@@ -30,11 +31,14 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("TimerService", "onStartCommand called")
         createNotificationChannel()
 
         val duration = intent?.getLongExtra("duration", 0) ?: 0
         val alarmSound = intent?.getStringExtra("alarmSound")
         val backgroundSound = intent?.getStringExtra("backgroundSound")
+
+        Log.d("TimerService", "duration: $duration, alarmSound: $alarmSound, backgroundSound: $backgroundSound")
 
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
@@ -55,12 +59,14 @@ class TimerService : Service() {
 
         countDownTimer = object : CountDownTimer(duration, 1000) {
             override fun onTick(millisUntilFinished: Long) {
+                Log.d("TimerService", "onTick: $millisUntilFinished")
                 val intent = Intent(TIMER_UPDATE)
                 intent.putExtra(TIMER_VALUE, millisUntilFinished)
                 sendBroadcast(intent)
             }
 
             override fun onFinish() {
+                Log.d("TimerService", "onFinish")
                 stopBackgroundSound()
                 playAlarm(alarmSound)
                 stopSelf()
@@ -127,6 +133,7 @@ class TimerService : Service() {
     }
 
     private fun playBackgroundSound(soundName: String?) {
+        Log.d("TimerService", "playBackgroundSound called with soundName: $soundName")
         if (soundName != null && soundName != "None") {
             mediaPlayer?.release()
             val resId = getSoundResId(soundName)
@@ -137,6 +144,7 @@ class TimerService : Service() {
                 mediaPlayer?.isLooping = true
                 mediaPlayer?.setVolume(volume, volume)
                 mediaPlayer?.start()
+                Log.d("TimerService", "MediaPlayer started")
             }
         }
     }

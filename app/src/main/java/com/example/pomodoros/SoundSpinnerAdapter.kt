@@ -56,6 +56,7 @@ class SoundSpinnerAdapter(
         }
 
         playPauseButton.setOnClickListener {
+            Log.d("SoundSpinnerAdapter", "playPauseButton clicked for sound: $soundName")
             if (soundName == currentlyPlaying) {
                 // Pause the sound
                 mediaPlayer?.pause()
@@ -70,6 +71,7 @@ class SoundSpinnerAdapter(
                 // Play the new sound
                 val fileName = soundFiles[soundName]
                 if (fileName == "Vibration") {
+                    Log.d("SoundSpinnerAdapter", "Vibrating for 3 seconds")
                     val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
                         vibratorManager.defaultVibrator
@@ -87,6 +89,7 @@ class SoundSpinnerAdapter(
                 } else if (fileName != null && fileName != "None") {
                     val resId = getSoundResId(fileName)
                     if (resId != 0) {
+                        Log.d("SoundSpinnerAdapter", "Playing sound with resId: $resId")
                         mediaPlayer = MediaPlayer.create(context, resId)
                         mediaPlayer?.setOnCompletionListener {
                             currentlyPlaying = null
